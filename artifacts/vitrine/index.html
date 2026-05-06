@@ -869,14 +869,27 @@
   function renderResumo() {
     const list = document.getElementById('resumo-list');
     const empty = document.getElementById('resumo-empty');
-    list.innerHTML = '';
-    if (state.selected.size === 0) { list.appendChild(empty); empty.style.display = ''; return; }
+
+    list.querySelectorAll('.resumo-item').forEach(el => el.remove());
+
+    if (state.selected.size === 0) {
+      empty.style.display = '';
+      return;
+    }
+
     empty.style.display = 'none';
     document.querySelectorAll('.card.selected').forEach(card => {
       const li = document.createElement('li');
       li.className = 'resumo-item';
       const unit = card.dataset.unit ? ' ' + card.dataset.unit : '';
-      li.innerHTML = `<span class="resumo-item-name">${card.dataset.name}</span><span class="resumo-item-price">R$${card.dataset.price}${unit}</span>`;
+      const name = document.createElement('span');
+      name.className = 'resumo-item-name';
+      name.textContent = card.dataset.name;
+      const price = document.createElement('span');
+      price.className = 'resumo-item-price';
+      price.textContent = 'R$' + card.dataset.price + unit;
+      li.appendChild(name);
+      li.appendChild(price);
       list.appendChild(li);
     });
   }
