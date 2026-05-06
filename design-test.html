@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Tokens — Fortunato Criativo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --blue: #00a8ff;
+      --red: #ff4757;
+      --yellow: #ffa502;
+      --green: #2ed573;
+      --card-bg: #0d0d0d;
+      --card-border: #1a1a1a;
+      --font: 'Orbitron', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--fg); font-family: var(--font); padding: 2rem; }
+
+    h1 { font-size: 1.5rem; margin-bottom: 2rem; color: var(--blue); letter-spacing: 0.2em; }
+    h2 { font-size: 1rem; color: var(--yellow); letter-spacing: 0.1em; margin-bottom: 1rem; }
+
+    .section { margin-bottom: 3rem; }
+
+    /* COLOR SWATCHES */
+    .swatches { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .swatch {
+      width: 80px; height: 80px;
+      border-radius: 4px;
+      display: flex; align-items: flex-end; padding: 6px;
+      font-size: 0.5rem; font-family: monospace;
+    }
+
+    /* TYPOGRAPHY SCALE */
+    .type-scale { display: flex; flex-direction: column; gap: 0.5rem; }
+    .t1 { font-size: 2.5rem; font-weight: 900; }
+    .t2 { font-size: 1.5rem; font-weight: 700; }
+    .t3 { font-size: 1rem; font-weight: 400; }
+    .t4 { font-size: 0.75rem; font-weight: 400; letter-spacing: 0.2em; }
+
+    /* CARD TOKEN */
+    .card-demo {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      width: 200px;
+      display: inline-block;
+    }
+    .card-demo.blue  { box-shadow: 0 0 16px var(--blue), 0 0 2px var(--blue) inset; border-color: var(--blue); }
+    .card-demo.red   { box-shadow: 0 0 16px var(--red), 0 0 2px var(--red) inset; border-color: var(--red); }
+    .card-demo.yellow{ box-shadow: 0 0 16px var(--yellow), 0 0 2px var(--yellow) inset; border-color: var(--yellow); }
+    .card-demo.green { box-shadow: 0 0 16px var(--green), 0 0 2px var(--green) inset; border-color: var(--green); }
+    .cards-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+    /* BUTTONS */
+    .btn {
+      font-family: var(--font);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      padding: 0.75rem 1.5rem;
+      border: 2px solid transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      margin-right: 1rem; margin-bottom: 1rem;
+    }
+    .btn-primary { background: var(--blue); color: #000; border-color: var(--blue); }
+    .btn-primary:hover { background: transparent; color: var(--blue); box-shadow: 0 0 20px var(--blue); }
+    .btn-success { background: var(--green); color: #000; border-color: var(--green); }
+    .btn-success:hover { background: transparent; color: var(--green); box-shadow: 0 0 20px var(--green); image-rendering: pixelated; }
+    .btn-danger { background: var(--red); color: #fff; border-color: var(--red); }
+    .btn-danger:hover { background: transparent; color: var(--red); box-shadow: 0 0 20px var(--red); }
+    .btn-warn { background: var(--yellow); color: #000; border-color: var(--yellow); }
+    .btn-warn:hover { background: transparent; color: var(--yellow); box-shadow: 0 0 20px var(--yellow); }
+
+    /* PIXEL SPINNER */
+    .pixel-spinner {
+      width: 32px; height: 32px;
+      background:
+        linear-gradient(var(--blue) 0 0) 0 0 / 10px 10px,
+        linear-gradient(var(--blue) 0 0) 22px 0 / 10px 10px,
+        linear-gradient(var(--blue) 0 0) 0 22px / 10px 10px,
+        linear-gradient(var(--blue) 0 0) 22px 22px / 10px 10px;
+      background-repeat: no-repeat;
+      animation: pixspin 0.8s steps(4) infinite;
+    }
+    @keyframes pixspin {
+      0%   { opacity: 1 1 0 0; transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* NEON INPUT */
+    .neon-input {
+      background: #0d0d0d;
+      border: 1px solid var(--blue);
+      border-radius: 4px;
+      color: var(--fg);
+      font-family: var(--font);
+      font-size: 0.75rem;
+      padding: 0.75rem 1rem;
+      width: 300px;
+      letter-spacing: 0.1em;
+      outline: none;
+      transition: box-shadow 0.2s;
+    }
+    .neon-input:focus { box-shadow: 0 0 12px var(--blue); }
+    .neon-input::placeholder { color: #444; }
+
+    /* PRICE TAG */
+    .price-tag {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--green);
+    }
+    .price-tag span { font-size: 0.75rem; color: #666; }
+
+    /* CHECKBOX PIXEL */
+    .pixel-checkbox { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; }
+    .pixel-checkbox input { display: none; }
+    .pixel-box {
+      width: 20px; height: 20px;
+      border: 2px solid var(--blue);
+      background: transparent;
+      position: relative; flex-shrink: 0;
+      image-rendering: pixelated;
+    }
+    .pixel-checkbox input:checked + .pixel-box { background: var(--blue); }
+    .pixel-checkbox input:checked + .pixel-box::after {
+      content: '';
+      position: absolute;
+      left: 3px; top: 1px;
+      width: 6px; height: 10px;
+      border-right: 3px solid #000;
+      border-bottom: 3px solid #000;
+      transform: rotate(45deg);
+    }
+
+    /* CONFETTI PARTICLE */
+    .confetti-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .confetti-dot {
+      width: 8px; height: 8px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h1>▸ DESIGN TOKENS — FORTUNATO CRIATIVO</h1>
+
+  <div class="section">
+    <h2>01 / PALETA DE CORES</h2>
+    <div class="swatches">
+      <div class="swatch" style="background:#000; border:1px solid #333; color:#fff">#000000</div>
+      <div class="swatch" style="background:#0d0d0d; border:1px solid #333; color:#fff">#0d0d0d</div>
+      <div class="swatch" style="background:#00a8ff; color:#000">#00a8ff</div>
+      <div class="swatch" style="background:#ff4757; color:#fff">#ff4757</div>
+      <div class="swatch" style="background:#ffa502; color:#000">#ffa502</div>
+      <div class="swatch" style="background:#2ed573; color:#000">#2ed573</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>02 / TIPOGRAFIA (ORBITRON)</h2>
+    <div class="type-scale">
+      <div class="t1" style="color:var(--blue)">FORTUNATO CRIATIVO</div>
+      <div class="t2" style="color:var(--fg)">Vitrine de Pedidos</div>
+      <div class="t3" style="color:#aaa">Criação de Logo — R$500</div>
+      <div class="t4" style="color:#666">VILA MARIANA • 500M DE ESTAÇÃO</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>03 / CARDS NEON (ESTADOS)</h2>
+    <div class="cards-row">
+      <div class="card-demo blue">
+        <div style="font-size:0.6rem;color:#00a8ff;letter-spacing:0.15em">LOGO</div>
+        <div style="font-size:1.1rem;font-weight:700;margin-top:0.5rem">Criação de Logo</div>
+        <div class="price-tag" style="margin-top:0.5rem">R$500<span></span></div>
+      </div>
+      <div class="card-demo red">
+        <div style="font-size:0.6rem;color:#ff4757;letter-spacing:0.15em">MARCA</div>
+        <div style="font-size:1.1rem;font-weight:700;margin-top:0.5rem">Manual de Marca</div>
+        <div class="price-tag" style="color:#ff4757;margin-top:0.5rem">R$1000</div>
+      </div>
+      <div class="card-demo yellow">
+        <div style="font-size:0.6rem;color:#ffa502;letter-spacing:0.15em">ARTE</div>
+        <div style="font-size:1.1rem;font-weight:700;margin-top:0.5rem">Arte de Divulgação</div>
+        <div class="price-tag" style="color:#ffa502;margin-top:0.5rem">R$250<span>/formato</span></div>
+      </div>
+      <div class="card-demo green">
+        <div style="font-size:0.6rem;color:#2ed573;letter-spacing:0.15em">SITE</div>
+        <div style="font-size:1.1rem;font-weight:700;margin-top:0.5rem">Criação de Site</div>
+        <div class="price-tag" style="color:#2ed573;margin-top:0.5rem">R$300<span>/página</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>04 / BOTÕES</h2>
+    <button class="btn btn-primary">Selecionar</button>
+    <button class="btn btn-success">WhatsApp ▶</button>
+    <button class="btn btn-danger">Remover</button>
+    <button class="btn btn-warn">Ver Mais</button>
+  </div>
+
+  <div class="section">
+    <h2>05 / INPUT NEON</h2>
+    <input class="neon-input" type="text" placeholder="Digite seu bairro ou estação de metrô...">
+  </div>
+
+  <div class="section">
+    <h2>06 / CHECKBOX PIXEL</h2>
+    <label class="pixel-checkbox">
+      <input type="checkbox">
+      <div class="pixel-box"></div>
+      <span style="font-size:0.8rem">Criação de Logo — R$500</span>
+    </label>
+    <br><br>
+    <label class="pixel-checkbox">
+      <input type="checkbox" checked>
+      <div class="pixel-box"></div>
+      <span style="font-size:0.8rem;color:var(--blue)">Manual de Marca — R$1000</span>
+    </label>
+  </div>
+
+  <div class="section">
+    <h2>07 / PIXEL SPINNER</h2>
+    <div class="pixel-spinner"></div>
+  </div>
+
+  <div class="section">
+    <h2>08 / CONFETTI DOTS</h2>
+    <div class="confetti-row">
+      <div class="confetti-dot" style="background:#00a8ff"></div>
+      <div class="confetti-dot" style="background:#ff4757"></div>
+      <div class="confetti-dot" style="background:#ffa502"></div>
+      <div class="confetti-dot" style="background:#2ed573"></div>
+      <div class="confetti-dot" style="background:#00a8ff"></div>
+      <div class="confetti-dot" style="background:#ffa502"></div>
+      <div class="confetti-dot" style="background:#ff4757"></div>
+      <div class="confetti-dot" style="background:#2ed573"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>09 / PREÇO ANIMADO</h2>
+    <div class="price-tag" id="animated-price">R$<span id="price-val">0</span></div>
+    <br>
+    <button class="btn btn-warn" onclick="animatePrice(1250)">Animar → R$1250</button>
+    <button class="btn btn-primary" onclick="animatePrice(0)">Reset</button>
+  </div>
+
+  <script>
+    function animatePrice(target) {
+      const el = document.getElementById('price-val');
+      const start = parseInt(el.textContent) || 0;
+      const duration = 600;
+      const startTime = performance.now();
+      function step(now) {
+        const t = Math.min((now - startTime) / duration, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        el.textContent = Math.round(start + (target - start) * ease);
+        if (t < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    document.querySelectorAll('.pixel-checkbox input').forEach(cb => {
+      cb.addEventListener('change', function() {
+        const label = this.closest('.pixel-checkbox').querySelector('span');
+        label.style.color = this.checked ? 'var(--blue)' : '';
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fortunato Criativo — Vitrine de Pedidos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* ─── TOKENS ───────────────────────────────────────────────── */
+    :root {
+      --bg:      #000;
+      --bg2:     #0a0a0a;
+      --bg3:     #111;
+      --fg:      #fff;
+      --muted:   #666;
+      --blue:    #00a8ff;
+      --red:     #ff4757;
+      --yellow:  #ffa502;
+      --green:   #2ed573;
+      --font:    'Orbitron', monospace;
+      --radius:  6px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── SCANLINE OVERLAY ─────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    /* ─── HEADER ───────────────────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #1a1a1a;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .logo-svg { width: 48px; height: 48px; flex-shrink: 0; }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      line-height: 1;
+    }
+
+    .brand-name {
+      font-size: clamp(0.85rem, 3vw, 1.1rem);
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      color: var(--fg);
+    }
+
+    .brand-sub {
+      font-size: 0.5rem;
+      letter-spacing: 0.25em;
+      color: var(--blue);
+      margin-top: 4px;
+    }
+
+    .header-spacer { flex: 1; }
+
+    .header-badge {
+      font-size: 0.5rem;
+      letter-spacing: 0.15em;
+      color: var(--green);
+      border: 1px solid var(--green);
+      padding: 4px 8px;
+      border-radius: 2px;
+      animation: blink 2s steps(1) infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* ─── MAIN LAYOUT ──────────────────────────────────────────── */
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 2rem 1rem 8rem;
+    }
+
+    /* ─── SECTION HEADER ───────────────────────────────────────── */
+    .section-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      font-weight: 900;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.1em;
+    }
+
+    .sep {
+      height: 1px;
+      background: linear-gradient(90deg, var(--blue), transparent);
+      margin-bottom: 2rem;
+    }
+
+    /* ─── PRODUCT GRID ─────────────────────────────────────────── */
+    .products-section { margin-bottom: 3rem; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (min-width: 768px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 1024px) { .grid { gap: 1.25rem; } }
+
+    /* ─── PRODUCT CARD ─────────────────────────────────────────── */
+    .card {
+      background: var(--bg2);
+      border: 1px solid #1a1a1a;
+      border-radius: var(--radius);
+      padding: 1.25rem 1rem;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .card:hover { transform: scale(1.04); }
+    .card:hover::before { opacity: 1; }
+
+    .card.selected { transform: scale(1.02); }
+
+    /* color variants */
+    .card[data-color="blue"] .card-tag   { color: var(--blue); }
+    .card[data-color="blue"]:hover,
+    .card[data-color="blue"].selected  {
+      border-color: var(--blue);
+      box-shadow: 0 0 18px rgba(0,168,255,0.35), 0 0 4px rgba(0,168,255,0.15) inset;
+    }
+
+    .card[data-color="red"] .card-tag   { color: var(--red); }
+    .card[data-color="red"]:hover,
+    .card[data-color="red"].selected  {
+      border-color: var(--red);
+      box-shadow: 0 0 18px rgba(255,71,87,0.35), 0 0 4px rgba(255,71,87,0.15) inset;
+    }
+
+    .card[data-color="yellow"] .card-tag { color: var(--yellow); }
+    .card[data-color="yellow"]:hover,
+    .card[data-color="yellow"].selected {
+      border-color: var(--yellow);
+      box-shadow: 0 0 18px rgba(255,165,2,0.35), 0 0 4px rgba(255,165,2,0.15) inset;
+    }
+
+    .card[data-color="green"] .card-tag  { color: var(--green); }
+    .card[data-color="green"]:hover,
+    .card[data-color="green"].selected {
+      border-color: var(--green);
+      box-shadow: 0 0 18px rgba(46,213,115,0.35), 0 0 4px rgba(46,213,115,0.15) inset;
+    }
+
+    .card-tag {
+      font-size: 0.5rem;
+      letter-spacing: 0.25em;
+      margin-bottom: 0.6rem;
+    }
+
+    .card-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      line-height: 1;
+    }
+
+    .card-name {
+      font-size: clamp(0.65rem, 2.5vw, 0.85rem);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      line-height: 1.4;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-price {
+      font-size: clamp(0.9rem, 3vw, 1.15rem);
+      font-weight: 900;
+    }
+
+    .card-price-sub {
+      font-size: 0.55rem;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .card-check {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #333;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      image-rendering: pixelated;
+    }
+
+    .card.selected .card-check {
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .card[data-color="red"].selected .card-check   { background: var(--red);    border-color: var(--red); }
+    .card[data-color="yellow"].selected .card-check { background: var(--yellow); border-color: var(--yellow); }
+    .card[data-color="green"].selected .card-check  { background: var(--green);  border-color: var(--green); }
+
+    .card-check::after {
+      content: '';
+      width: 5px;
+      height: 9px;
+      border-right: 2px solid #000;
+      border-bottom: 2px solid #000;
+      transform: rotate(45deg) translateY(-1px);
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .card.selected .card-check::after { opacity: 1; }
+
+    /* ─── FRETE SECTION ────────────────────────────────────────── */
+    .frete-section {
+      background: var(--bg2);
+      border: 1px solid #1a1a1a;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .input-wrap { position: relative; }
+
+    .neon-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid #2a2a2a;
+      border-radius: var(--radius);
+      color: var(--fg);
+      font-family: var(--font);
+      font-size: 0.75rem;
+      padding: 0.85rem 3rem 0.85rem 1rem;
+      letter-spacing: 0.08em;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .neon-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 12px rgba(0,168,255,0.2);
+    }
+
+    .neon-input::placeholder { color: #333; }
+    .neon-input.valid   { border-color: var(--green); box-shadow: 0 0 12px rgba(46,213,115,0.2); }
+    .neon-input.invalid { border-color: var(--red);   box-shadow: 0 0 12px rgba(255,71,87,0.2); }
+
+    .input-icon {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    .frete-feedback {
+      margin-top: 0.75rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      min-height: 1.2em;
+      transition: color 0.2s;
+    }
+
+    .frete-feedback.ok     { color: var(--green); }
+    .frete-feedback.error  { color: var(--red); }
+    .frete-feedback.hint   { color: var(--muted); }
+
+    .frete-taxa {
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      border-top: 1px solid #1a1a1a;
+      padding-top: 1rem;
+    }
+
+    .frete-taxa strong { color: var(--green); font-size: 0.9rem; }
+
+    /* ─── RESUMO ───────────────────────────────────────────────── */
+    .resumo-section {
+      background: var(--bg2);
+      border: 1px solid #1a1a1a;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .resumo-list { list-style: none; margin-bottom: 1.25rem; }
+
+    .resumo-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid #111;
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      animation: slideIn 0.25s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .resumo-item-name { color: #ccc; }
+    .resumo-item-price { color: var(--blue); font-weight: 700; }
+
+    .resumo-empty {
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      text-align: center;
+      padding: 1.5rem 0;
+    }
+
+    .resumo-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-top: 1px solid #222;
+      padding-top: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .resumo-total-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+    }
+
+    .resumo-total-value {
+      font-size: 1.75rem;
+      font-weight: 900;
+      color: var(--green);
+    }
+
+    /* ─── BUTTONS ──────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-family: var(--font);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius);
+      border: 2px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .btn-whatsapp {
+      background: var(--green);
+      color: #000;
+      border-color: var(--green);
+    }
+
+    .btn-whatsapp:hover:not(:disabled) {
+      background: transparent;
+      color: var(--green);
+      box-shadow: 0 0 24px rgba(46,213,115,0.4);
+      image-rendering: pixelated;
+    }
+
+    .btn-whatsapp:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .btn-clear {
+      background: transparent;
+      color: var(--red);
+      border-color: var(--red);
+      width: auto;
+      padding: 0.5rem 1rem;
+      font-size: 0.6rem;
+    }
+
+    .btn-clear:hover {
+      background: var(--red);
+      color: #fff;
+    }
+
+    /* ─── FLOATING WA BUTTON ───────────────────────────────────── */
+    #fab-wa {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 200;
+      width: 58px;
+      height: 58px;
+      background: var(--green);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(46,213,115,0.4);
+      transition: all 0.2s;
+      image-rendering: pixelated;
+    }
+
+    #fab-wa:hover {
+      background: #000;
+      box-shadow:
+        0 0 0 2px var(--green),
+        0 0 32px rgba(46,213,115,0.6),
+        4px 4px 0 var(--green);
+      transform: translate(-2px, -2px);
+    }
+
+    #fab-wa svg { width: 28px; height: 28px; }
+
+    /* ─── PIXEL SPINNER ────────────────────────────────────────── */
+    .pixel-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 3px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 0;
+      animation: pixspin 0.6s steps(8) infinite;
+      image-rendering: pixelated;
+    }
+
+    @keyframes pixspin { to { transform: rotate(360deg); } }
+
+    /* ─── LOADING OVERLAY ──────────────────────────────────────── */
+    #loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    #loading-overlay.active { display: flex; }
+
+    .loading-pixel {
+      display: grid;
+      grid-template-columns: repeat(5,12px);
+      grid-template-rows: repeat(5,12px);
+      gap: 3px;
+      animation: loadRotate 1.2s steps(4) infinite;
+    }
+
+    @keyframes loadRotate { to { transform: rotate(360deg); } }
+
+    .loading-pixel span {
+      width: 12px;
+      height: 12px;
+      background: var(--blue);
+      animation: pixelFade 1.2s ease-in-out infinite;
+    }
+
+    .loading-pixel span:nth-child(odd)  { animation-delay: 0.2s; background: var(--blue); }
+    .loading-pixel span:nth-child(even) { background: var(--green); animation-delay: 0.4s; }
+
+    @keyframes pixelFade {
+      0%, 100% { opacity: 0.2; }
+      50%       { opacity: 1; }
+    }
+
+    .loading-text {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      color: var(--blue);
+      animation: blink 0.8s steps(1) infinite;
+    }
+
+    /* ─── CONFETTI ─────────────────────────────────────────────── */
+    #confetti-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9997;
+      overflow: hidden;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      top: -10px;
+      image-rendering: pixelated;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ─── FOOTER ───────────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      color: var(--muted);
+      border-top: 1px solid #0d0d0d;
+    }
+
+    footer span { color: var(--blue); }
+
+    /* ─── SUCCESS TOAST ────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--green);
+      color: #000;
+      font-family: var(--font);
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      z-index: 9999;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      white-space: nowrap;
+    }
+
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ─── RESPONSIVE TWEAKS ────────────────────────────────────── */
+    @media (max-width: 375px) {
+      .card-name { font-size: 0.6rem; }
+      .card-price { font-size: 0.85rem; }
+    }
+
+    @media (min-width: 1024px) {
+      main { padding-top: 3rem; }
+      .frete-section,
+      .resumo-section { max-width: 640px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── LOADING OVERLAY ─────────────────────────────────────────── -->
+<div id="loading-overlay" role="status" aria-live="polite">
+  <div class="loading-pixel">
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="loading-text">PROCESSANDO PEDIDO...</div>
+</div>
+
+<!-- ─── CONFETTI ──────────────────────────────────────────────────── -->
+<div id="confetti-container" aria-hidden="true"></div>
+
+<!-- ─── TOAST ─────────────────────────────────────────────────────── -->
+<div id="toast" role="alert">▶ PEDIDO ENVIADO VIA WHATSAPP!</div>
+
+<!-- ─── HEADER ────────────────────────────────────────────────────── -->
+<header>
+  <a href="#" class="logo-wrap" aria-label="Fortunato Criativo">
+    <!-- Game Controller SVG -->
+    <svg class="logo-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <!-- Body -->
+      <rect x="4" y="14" width="40" height="22" rx="10" fill="#111" stroke="#00a8ff" stroke-width="1.5"/>
+      <!-- D-pad left -->
+      <rect x="8" y="22" width="4" height="6" fill="#00a8ff"/>
+      <rect x="6" y="24" width="8" height="2" fill="#00a8ff"/>
+      <!-- Buttons right -->
+      <circle cx="38" cy="22" r="2.5" fill="#ff4757"/>
+      <circle cx="34" cy="26" r="2.5" fill="#2ed573"/>
+      <circle cx="38" cy="26" r="2.5" fill="#ffa502"/>
+      <circle cx="34" cy="22" r="2.5" fill="#00a8ff"/>
+      <!-- Select/Start -->
+      <rect x="20" y="24" width="4" height="1.5" rx="0.75" fill="#333"/>
+      <rect x="25" y="24" width="4" height="1.5" rx="0.75" fill="#333"/>
+      <!-- Triggers -->
+      <rect x="10" y="11" width="8" height="5" rx="2" fill="#00a8ff" opacity="0.7"/>
+      <rect x="30" y="11" width="8" height="5" rx="2" fill="#00a8ff" opacity="0.7"/>
+      <!-- Center logo pixel -->
+      <rect x="22" y="21" width="4" height="4" rx="1" fill="#00a8ff" opacity="0.4"/>
+    </svg>
+    <div class="brand">
+      <div class="brand-name">FORTUNATO CRIATIVO</div>
+      <div class="brand-sub">VITRINE DE SERVIÇOS</div>
+    </div>
+  </a>
+  <div class="header-spacer"></div>
+  <div class="header-badge">● ONLINE</div>
+</header>
+
+<!-- ─── MAIN ──────────────────────────────────────────────────────── -->
+<main>
+
+  <!-- PRODUTOS -->
+  <section class="products-section" aria-labelledby="prod-title">
+    <div class="section-label">01 / SELECIONE OS SERVIÇOS</div>
+    <h2 class="section-title" id="prod-title">CATÁLOGO DE SERVIÇOS</h2>
+    <div class="sep"></div>
+
+    <div class="grid" role="list">
+
+      <div class="card" role="listitem" tabindex="0"
+           data-id="logo" data-name="Criação de Logo"
+           data-price="500" data-color="blue" data-unit=""
+           onclick="toggleCard(this)" onkeydown="if(event.key==='Enter'||event.key===' ')toggleCard(this)"
+           aria-pressed="false">
+        <div class="card-check" aria-hidden="true"></div>
+        <div class="card-tag">IDENTIDADE</div>
+        <div class="card-icon">🎨</div>
+        <div class="card-name">Criação de Logo</div>
+        <div class="card-price" style="color:var(--blue)">R$500</div>
+      </div>
+
+      <div class="card" role="listitem" tabindex="0"
+           data-id="marca" data-name="Manual de Marca"
+           data-price="1000" data-color="red" data-unit=""
+           onclick="toggleCard(this)" onkeydown="if(event.key==='Enter'||event.key===' ')toggleCard(this)"
+           aria-pressed="false">
+        <div class="card-check" aria-hidden="true"></div>
+        <div class="card-tag">BRANDING</div>
+        <div class="card-icon">📒</div>
+        <div class="card-name">Manual de Marca</div>
+        <div class="card-price" style="color:var(--red)">R$1000</div>
+      </div>
+
+      <div class="card" role="listitem" tabindex="0"
+           data-id="arte" data-name="Arte de Divulgação"
+           data-price="250" data-color="yellow" data-unit="/formato"
+           onclick="toggleCard(this)" onkeydown="if(event.key==='Enter'||event.key===' ')toggleCard(this)"
+           aria-pressed="false">
+        <div class="card-check" aria-hidden="true"></div>
+        <div class="card-tag">MARKETING</div>
+        <div class="card-icon">📣</div>
+        <div class="card-name">Arte de Divulgação</div>
+        <div class="card-price" style="color:var(--yellow)">R$250<span class="card-price-sub">/formato</span></div>
+      </div>
+
+      <div class="card" role="listitem" tabindex="0"
+           data-id="video-s" data-name="Edição Vídeo Simples"
+           data-price="120" data-color="blue" data-unit="/hora bruto"
+           onclick="toggleCard(this)" onkeydown="if(event.key==='Enter'||event.key===' ')toggleCard(this)"
+           aria-pressed="false">
+        <div class="card-check" aria-hidden="true"></div>
+        <div class="card-tag">VÍDEO</div>
+        <div class="card-icon">🎬</div>
+        <div class="card-name">Edição Vídeo Simples</div>
+        <div class="card-price" style="color:var(--blue)">R$120<span class="card-price-sub">/hora bruto</span></div>
+      </div>
+
+      <div class="card" role="listitem" tabindex="0"
+           data-id="video-c" data-name="Edição Vídeo Completa"
+           data-price="400" data-color="red" data-unit="/hora bruto"
+           onclick="toggleCard(this)" onkeydown="if(event.key==='Enter'||event.key===' ')toggleCard(this)"
+           aria-pressed="false">
+        <div class="card-check" aria-hidden="true"></div>
+        <div class="card-tag">VÍDEO PRO</div>
+        <div class="card-icon">🎞️</div>
+        <div class="card-name">Edição Vídeo Completa</div>
+        <div class="card-price" style="color:var(--red)">R$400<span class="card-price-sub">/hora bruto</span></div>
+      </div>
+
+      <div class="card" role="listitem" tabindex="0"
+           data-id="site" data-name="Criação de Site"
+           data-price="300" data-color="green" data-unit="/página"
+           onclick="toggleCard(this)" onkeydown="if(event.key==='Enter'||event.key===' ')toggleCard(this)"
+           aria-pressed="false">
+        <div class="card-check" aria-hidden="true"></div>
+        <div class="card-tag">WEB</div>
+        <div class="card-icon">🌐</div>
+        <div class="card-name">Criação de Site</div>
+        <div class="card-price" style="color:var(--green)">R$300<span class="card-price-sub">/página</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FRETE -->
+  <section class="frete-section" aria-labelledby="frete-title">
+    <div class="section-label">02 / LOCALIZAÇÃO</div>
+    <h2 class="section-title" id="frete-title">VERIFICAR ENTREGA</h2>
+    <div class="sep"></div>
+
+    <div class="input-wrap">
+      <input
+        id="bairro-input"
+        class="neon-input"
+        type="text"
+        placeholder="Digite seu bairro ou estação de metrô mais próxima"
+        autocomplete="off"
+        aria-label="Bairro ou estação de metrô"
+        oninput="validateLocation(this.value)"
+      >
+      <span class="input-icon" id="location-icon" aria-hidden="true">📍</span>
+    </div>
+    <div class="frete-feedback hint" id="frete-feedback">
+      Aceito em Vila Mariana e bairros a até 500m de uma estação de metrô.
+    </div>
+
+    <div class="frete-taxa">
+      <span>TAXA DE ENTREGA / DESLOCAMENTO</span>
+      <strong id="taxa-value">R$0</strong>
+    </div>
+  </section>
+
+  <!-- RESUMO -->
+  <section class="resumo-section" aria-labelledby="resumo-title">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem">
+      <div class="section-label">03 / RESUMO DO PEDIDO</div>
+      <button class="btn btn-clear" onclick="clearAll()" aria-label="Limpar seleção">LIMPAR</button>
+    </div>
+    <h2 class="section-title" id="resumo-title">MEU PEDIDO</h2>
+    <div class="sep"></div>
+
+    <ul class="resumo-list" id="resumo-list" aria-live="polite">
+      <li class="resumo-empty" id="resumo-empty">Nenhum serviço selecionado ainda.</li>
+    </ul>
+
+    <div class="resumo-total">
+      <span class="resumo-total-label">TOTAL ESTIMADO</span>
+      <span class="resumo-total-value">R$<span id="total-display">0</span></span>
+    </div>
+
+    <a id="btn-finalizar" href="#" class="btn btn-whatsapp" role="button" aria-disabled="true"
+       onclick="finalizarPedido(event)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+      FINALIZAR PEDIDO
+    </a>
+  </section>
+
+</main>
+
+<!-- ─── FOOTER ─────────────────────────────────────────────────────── -->
+<footer>
+  <span>VILA MARIANA</span> • 500M DE ESTAÇÃO DE METRÔ • FORTUNATO CRIATIVO © 2025
+</footer>
+
+<!-- ─── FAB WHATSAPP ────────────────────────────────────────────────── -->
+<button id="fab-wa" aria-label="Contato via WhatsApp" onclick="openWA()">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+</button>
+
+<!-- ─── SCRIPT ─────────────────────────────────────────────────────── -->
+<script>
+  /* ── STATE ── */
+  const state = {
+    selected: new Set(),
+    total: 0,
+    bairro: '',
+    locationOk: false,
+  };
+
+  /* ── KNOWN VALID LOCATIONS ── */
+  const VALID_LOCATIONS = [
+    // Vila Mariana e arredores
+    'vila mariana','paraíso','ana rosa','chácara klabin','ibirapuera',
+    'aclimação','saúde','moema','jabaquara',
+    // Metrô SP - linha 1 azul
+    'tucuruvi','parada inglesa','jardim são paulo','santana','carandiru',
+    'portuguesa-tietê','armênia','tiradentes','luz','são bento','sé',
+    'liberdade','brigadeiro','trianon-masp','consolação','clínicas',
+    'sumaré','vila madalena','butantã','república',
+    // Linha 2 verde
+    'vila prudente','tamanduateí','sacomã','alto do ipiranga','santos-imigrantes',
+    'chácara klabin','santa cruz','praça da árvore','saúde','borba gato',
+    'moema','eucaliptos','campo belo','santo amaro',
+    // Linha 3 vermelha
+    'itaquera','guilhermina-esperança','patriarca','arthur alvim','corinthians-itaquera',
+    'carrão','penha','vila matilde','guilhermina','patriarca',
+    'tatuapé','carrão','belém','bresser-mooca','brás','pedro ii',
+    'república','anhangabaú','sé','liberdade','brigadeiro','pedro ii',
+    'palmeiras-barra funda','barra funda','marechal deodoro','santa cecília',
+    // Linha 4 amarela
+    'morumbi','butantã','oscar freire','paulista','higienópolis-mackenzie',
+    'república','luz','paulista','faria lima','pinheiros','oscar freire',
+    // Linha 5 lilás
+    'capão redondo','campo limpo','vila das belezas','giovanni gronchi',
+    'santo amaro','largo treze','adolfo pinheiro','alto da boa vista',
+    'borba gato','moema','eucaliptos','campo belo','oscar freire',
+    'chácara klabin','santa cruz','praça da árvore','saúde',
+    // Linha 15 prata monotrilho
+    'vila prudente','sapopemba','fazenda da juta','socorro',
+    // Extra keywords
+    'estação','metro','metrô',
+  ].map(l => l.toLowerCase());
+
+  function normalizeStr(s) {
+    return s.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[^a-z0-9\s]/g,'')
+      .trim();
+  }
+
+  function isValidLocation(val) {
+    if (!val || val.length < 3) return null;
+    const norm = normalizeStr(val);
+    return VALID_LOCATIONS.some(loc => {
+      const normLoc = normalizeStr(loc);
+      return norm.includes(normLoc) || normLoc.includes(norm.split(' ')[0]);
+    });
+  }
+
+  /* ── VALIDATE LOCATION ── */
+  function validateLocation(val) {
+    state.bairro = val.trim();
+    const input = document.getElementById('bairro-input');
+    const feedback = document.getElementById('frete-feedback');
+    const icon = document.getElementById('location-icon');
+
+    if (!val || val.length < 3) {
+      input.className = 'neon-input';
+      feedback.className = 'frete-feedback hint';
+      feedback.textContent = 'Aceito em Vila Mariana e bairros a até 500m de uma estação de metrô.';
+      icon.textContent = '📍';
+      state.locationOk = false;
+      updateBtn();
+      return;
+    }
+
+    const ok = isValidLocation(val);
+
+    if (ok) {
+      input.className = 'neon-input valid';
+      feedback.className = 'frete-feedback ok';
+      feedback.textContent = '▶ LOCALIZAÇÃO CONFIRMADA — SERVIÇOS DIGITAIS: TAXA R$0';
+      icon.textContent = '✅';
+      state.locationOk = true;
+    } else {
+      input.className = 'neon-input invalid';
+      feedback.className = 'frete-feedback error';
+      feedback.textContent = '✖ LOCAL NÃO ATENDIDO — Informe um bairro próximo ao metrô ou Vila Mariana.';
+      icon.textContent = '❌';
+      state.locationOk = false;
+    }
+    updateBtn();
+  }
+
+  /* ── TOGGLE CARD ── */
+  function toggleCard(card) {
+    const id = card.dataset.id;
+    const price = parseInt(card.dataset.price);
+
+    if (state.selected.has(id)) {
+      state.selected.delete(id);
+      state.total -= price;
+      card.classList.remove('selected');
+      card.setAttribute('aria-pressed','false');
+    } else {
+      state.selected.add(id);
+      state.total += price;
+      card.classList.add('selected');
+      card.setAttribute('aria-pressed','true');
+    }
+
+    animateTotal(state.total + (state.total !== 0 ? 0 : 0));
+    renderResumo();
+    updateBtn();
+  }
+
+  /* ── ANIMATE TOTAL ── */
+  let animFrame;
+  let currentDisplay = 0;
+
+  function animateTotal(target) {
+    cancelAnimationFrame(animFrame);
+    const start = currentDisplay;
+    const duration = 500;
+    const startTime = performance.now();
+
+    function step(now) {
+      const t = Math.min((now - startTime) / duration, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      currentDisplay = Math.round(start + (target - start) * ease);
+      document.getElementById('total-display').textContent = currentDisplay;
+      if (t < 1) animFrame = requestAnimationFrame(step);
+    }
+    animFrame = requestAnimationFrame(step);
+  }
+
+  /* ── RENDER RESUMO ── */
+  function renderResumo() {
+    const list = document.getElementById('resumo-list');
+    const empty = document.getElementById('resumo-empty');
+
+    list.innerHTML = '';
+
+    if (state.selected.size === 0) {
+      list.appendChild(empty);
+      empty.style.display = '';
+      return;
+    }
+
+    empty.style.display = 'none';
+
+    document.querySelectorAll('.card.selected').forEach(card => {
+      const li = document.createElement('li');
+      li.className = 'resumo-item';
+      const unit = card.dataset.unit ? ' ' + card.dataset.unit : '';
+      li.innerHTML = `
+        <span class="resumo-item-name">${card.dataset.name}</span>
+        <span class="resumo-item-price">R$${card.dataset.price}${unit}</span>
+      `;
+      list.appendChild(li);
+    });
+  }
+
+  /* ── UPDATE BTN ── */
+  function updateBtn() {
+    const btn = document.getElementById('btn-finalizar');
+    const ready = state.selected.size > 0 && state.locationOk;
+    btn.setAttribute('aria-disabled', !ready);
+    btn.style.opacity = ready ? '1' : '0.4';
+    btn.style.pointerEvents = ready ? '' : 'none';
+  }
+
+  /* ── CLEAR ALL ── */
+  function clearAll() {
+    state.selected.clear();
+    state.total = 0;
+    state.bairro = '';
+    state.locationOk = false;
+
+    document.querySelectorAll('.card.selected').forEach(c => {
+      c.classList.remove('selected');
+      c.setAttribute('aria-pressed','false');
+    });
+
+    document.getElementById('bairro-input').value = '';
+    document.getElementById('bairro-input').className = 'neon-input';
+    document.getElementById('frete-feedback').className = 'frete-feedback hint';
+    document.getElementById('frete-feedback').textContent = 'Aceito em Vila Mariana e bairros a até 500m de uma estação de metrô.';
+    document.getElementById('location-icon').textContent = '📍';
+
+    animateTotal(0);
+    renderResumo();
+    updateBtn();
+  }
+
+  /* ── FINALIZAR PEDIDO ── */
+  function finalizarPedido(e) {
+    e.preventDefault();
+    if (state.selected.size === 0 || !state.locationOk) return;
+
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.add('active');
+
+    setTimeout(() => {
+      overlay.classList.remove('active');
+
+      const items = [];
+      document.querySelectorAll('.card.selected').forEach(card => {
+        const unit = card.dataset.unit ? card.dataset.unit : '';
+        items.push(`${card.dataset.name} (R$${card.dataset.price}${unit})`);
+      });
+
+      const lista = items.join(', ');
+      const bairro = state.bairro;
+      const total = state.total;
+
+      const msg = `Olá, gostaria de pedir o serviço de ${lista} com total R$${total}. Estou no ${bairro}. Para quando teria disponibilidade para marcar uma reunião.`;
+      const url = `https://wa.me/5511985815871?text=${encodeURIComponent(msg)}`;
+
+      window.open(url, '_blank');
+
+      launchConfetti();
+      showToast();
+    }, 1600);
+  }
+
+  /* ── OPEN WA (FAB) ── */
+  function openWA() {
+    if (state.selected.size > 0 && state.locationOk) {
+      finalizarPedido({ preventDefault: () => {} });
+    } else {
+      const msg = 'Olá, gostaria de saber mais sobre os serviços do Fortunato Criativo!';
+      window.open(`https://wa.me/5511985815871?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+  }
+
+  /* ── CONFETTI ── */
+  function launchConfetti() {
+    const container = document.getElementById('confetti-container');
+    const colors = ['#00a8ff','#ff4757','#ffa502','#2ed573','#fff'];
+    const count = 80;
+
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.width = (Math.random() * 8 + 4) + 'px';
+      el.style.height = el.style.width;
+      el.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+      el.style.animationDelay = Math.random() * 0.8 + 's';
+      container.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }
+  }
+
+  /* ── TOAST ── */
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  /* ── INIT ── */
+  renderResumo();
+  updateBtn();
+</script>
+
+</body>
+</html>
