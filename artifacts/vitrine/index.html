@@ -573,6 +573,40 @@
       .card-price { font-size: 0.85rem; }
     }
 
+    /* ─── ONLINE BUTTON ───────────────────────────────────────── */
+    .online-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 1rem 0;
+      color: var(--muted);
+      font-size: 0.55rem;
+      letter-spacing: 0.25em;
+    }
+
+    .online-divider::before,
+    .online-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #1a1a1a;
+    }
+
+    .btn-online {
+      background: transparent;
+      color: var(--blue);
+      border-color: var(--blue);
+      width: 100%;
+      padding: 0.85rem 1rem;
+      transition: all 0.2s;
+    }
+
+    .btn-online:hover {
+      background: var(--blue);
+      color: #000;
+      box-shadow: 0 0 20px rgba(0,168,255,0.35);
+    }
+
     /* ─── SIDE-BY-SIDE ROW ─────────────────────────────────────── */
     .bottom-row {
       display: flex;
@@ -765,6 +799,19 @@
       <span>TAXA DE ENTREGA / DESLOCAMENTO</span>
       <strong>R$0</strong>
     </div>
+
+    <div class="online-divider">
+      <span>OU</span>
+    </div>
+
+    <button class="btn btn-online" onclick="agendarOnline()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="2" y="3" width="20" height="14" rx="2"/>
+        <path d="M8 21h8M12 17v4"/>
+        <path d="M17 8l-5 4-5-4"/>
+      </svg>
+      AGENDAR REUNIÃO ONLINE
+    </button>
   </section>
 
   <!-- 03 RESUMO -->
@@ -975,6 +1022,19 @@
       launchConfetti();
       showToast();
     }, 1600);
+  }
+
+  function agendarOnline() {
+    const items = [];
+    document.querySelectorAll('.card.selected').forEach(card => {
+      const unit = card.dataset.unit || '';
+      items.push(`${card.dataset.name} (R$${card.dataset.price}${unit})`);
+    });
+    const servicosParte = items.length > 0
+      ? ` sobre os serviços: ${items.join(', ')}`
+      : '';
+    const msg = `Olá, gostaria de agendar uma reunião online${servicosParte}. Qual seria sua disponibilidade?`;
+    window.open(`https://wa.me/5511985815871?text=${encodeURIComponent(msg)}`, '_blank');
   }
 
   function openWA() {
