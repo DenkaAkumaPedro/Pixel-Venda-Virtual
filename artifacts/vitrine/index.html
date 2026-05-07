@@ -573,9 +573,33 @@
       .card-price { font-size: 0.85rem; }
     }
 
+    /* ─── SIDE-BY-SIDE ROW ─────────────────────────────────────── */
+    .bottom-row {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .bottom-row .frete-section,
+    .bottom-row .resumo-section {
+      margin-bottom: 0;
+    }
+
+    @media (min-width: 768px) {
+      .bottom-row {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+
+      .bottom-row .frete-section,
+      .bottom-row .resumo-section {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+
     @media (min-width: 1024px) {
       main { padding-top: 3rem; }
-      .frete-section, .resumo-section { max-width: 640px; }
     }
   </style>
 </head>
@@ -713,6 +737,8 @@
     </div>
   </section>
 
+  <div class="bottom-row">
+
   <!-- 02 LOCALIZAÇÃO -->
   <section class="frete-section" aria-labelledby="frete-title">
     <div class="section-label">02 / LOCALIZAÇÃO</div>
@@ -767,6 +793,8 @@
       FINALIZAR PEDIDO
     </a>
   </section>
+
+  </div><!-- /.bottom-row -->
 
 </main>
 
