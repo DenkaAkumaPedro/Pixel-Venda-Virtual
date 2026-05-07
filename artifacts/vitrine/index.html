@@ -33,6 +33,21 @@
       overflow-x: hidden;
     }
 
+    /* ─── HEX BACKGROUND ──────────────────────────────────────── */
+    #hex-bg {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header, main, footer, #loading-overlay, #confetti-container, #toast, #fab-wa {
+      position: relative;
+      z-index: 1;
+    }
+
     /* ─── SCANLINE OVERLAY ─────────────────────────────────────── */
     body::before {
       content: '';
@@ -566,6 +581,9 @@
 </head>
 <body>
 
+<!-- HEX BACKGROUND -->
+<canvas id="hex-bg" aria-hidden="true"></canvas>
+
 <!-- LOADING -->
 <div id="loading-overlay" role="status" aria-live="polite">
   <div class="loading-grid">
@@ -961,6 +979,83 @@
 
   renderResumo();
   updateBtn();
+
+  /* ── HEXAGON BACKGROUND ── */
+  (function () {
+    const canvas = document.getElementById('hex-bg');
+    const ctx = canvas.getContext('2d');
+
+    const COLORS = ['#00a8ff', '#ff4757', '#ffa502', '#2ed573'];
+    const HEX_SIZE = 36;
+    const COLS_EXTRA = 3;
+    const ROWS_EXTRA = 3;
+
+    let W, H, hexes = [];
+
+    function hexPath(cx, cy, r) {
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const a = Math.PI / 180 * (60 * i - 30);
+        const x = cx + r * Math.cos(a);
+        const y = cy + r * Math.sin(a);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    }
+
+    function buildGrid() {
+      hexes = [];
+      const dx = HEX_SIZE * Math.sqrt(3);
+      const dy = HEX_SIZE * 1.5;
+      const cols = Math.ceil(W / dx) + COLS_EXTRA;
+      const rows = Math.ceil(H / dy) + ROWS_EXTRA;
+      for (let row = -1; row < rows; row++) {
+        for (let col = -1; col < cols; col++) {
+          const offsetX = (row % 2) * (dx / 2);
+          const x = col * dx + offsetX;
+          const y = row * dy;
+          const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+          hexes.push({
+            x, y,
+            vx: (Math.random() - 0.5) * 0.18,
+            vy: (Math.random() - 0.5) * 0.18,
+            opacity: Math.random() * 0.06 + 0.02,
+            opacityDir: Math.random() < 0.5 ? 1 : -1,
+            opacitySpeed: Math.random() * 0.0004 + 0.0001,
+            color,
+          });
+        }
+      }
+    }
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+      buildGrid();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      for (const h of hexes) {
+        h.x += h.vx;
+        h.y += h.vy;
+        h.opacity += h.opacitySpeed * h.opacityDir;
+        if (h.opacity > 0.1 || h.opacity < 0.01) h.opacityDir *= -1;
+
+        hexPath(h.x, h.y, HEX_SIZE - 1);
+        ctx.strokeStyle = h.color;
+        ctx.globalAlpha = h.opacity;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+  })();
 </script>
 </body>
 </html>
