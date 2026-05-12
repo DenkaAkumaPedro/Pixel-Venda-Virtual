@@ -573,6 +573,69 @@
       .card-price { font-size: 0.85rem; }
     }
 
+    /* ─── STATION SELECT ──────────────────────────────────────── */
+    .select-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .select-prefix {
+      position: absolute;
+      left: 0.85rem;
+      font-size: 1rem;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .select-arrow {
+      position: absolute;
+      right: 0.85rem;
+      font-size: 0.75rem;
+      color: var(--blue);
+      pointer-events: none;
+    }
+
+    .neon-select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid #2a2a2a;
+      border-radius: var(--radius);
+      color: var(--fg);
+      font-family: var(--font);
+      font-size: 0.7rem;
+      padding: 0.85rem 2.5rem 0.85rem 2.5rem;
+      letter-spacing: 0.06em;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .neon-select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 12px rgba(0,168,255,0.2);
+    }
+
+    .neon-select.valid {
+      border-color: var(--green);
+      box-shadow: 0 0 12px rgba(46,213,115,0.2);
+    }
+
+    .neon-select option {
+      background: #0d0d0d;
+      color: var(--fg);
+      font-size: 0.7rem;
+    }
+
+    .neon-select optgroup {
+      background: #050505;
+      color: var(--muted);
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+    }
+
     /* ─── ONLINE BUTTON ───────────────────────────────────────── */
     .online-divider {
       display: flex;
@@ -779,20 +842,118 @@
     <h2 class="section-title" id="frete-title">VERIFICAR ENTREGA</h2>
     <div class="sep"></div>
 
-    <div class="input-wrap">
-      <input
+    <div class="select-wrap">
+      <span class="select-prefix" aria-hidden="true">🚇</span>
+      <select
         id="bairro-input"
-        class="neon-input"
-        type="text"
-        placeholder="Digite seu bairro ou estação de metrô mais próxima"
-        autocomplete="off"
-        aria-label="Bairro ou estação de metrô"
-        oninput="validateLocation(this.value)"
+        class="neon-select"
+        aria-label="Estação de metrô mais próxima"
+        onchange="selectStation(this.value)"
       >
-      <span class="input-icon" id="location-icon" aria-hidden="true">📍</span>
+        <option value="">Selecione sua estação de metrô...</option>
+        <optgroup label="━━ LINHA 1 — AZUL ━━">
+          <option>Tucuruvi</option>
+          <option>Parada Inglesa</option>
+          <option>Jardim São Paulo-Moovitae</option>
+          <option>Santana</option>
+          <option>Carandiru</option>
+          <option>Portuguesa-Tietê</option>
+          <option>Armênia</option>
+          <option>Tiradentes</option>
+          <option>Luz</option>
+          <option>São Bento</option>
+          <option>Sé</option>
+          <option>Liberdade</option>
+          <option>Brigadeiro</option>
+          <option>Trianon-MASP</option>
+          <option>Consolação</option>
+          <option>Clínicas</option>
+          <option>Sumaré</option>
+          <option>Vila Madalena</option>
+          <option>Jabaquara</option>
+        </optgroup>
+        <optgroup label="━━ LINHA 2 — VERDE ━━">
+          <option>Vila Madalena</option>
+          <option>Clínicas</option>
+          <option>Consolação</option>
+          <option>Paulista</option>
+          <option>Trianon-MASP</option>
+          <option>Paraíso</option>
+          <option>Ana Rosa</option>
+          <option>Chácara Klabin</option>
+          <option>Santos-Imigrantes</option>
+          <option>Alto do Ipiranga</option>
+          <option>Sacomã</option>
+          <option>Tamanduateí</option>
+          <option>Vila Prudente</option>
+        </optgroup>
+        <optgroup label="━━ LINHA 3 — VERMELHA ━━">
+          <option>Palmeiras-Barra Funda</option>
+          <option>Marechal Deodoro</option>
+          <option>Santa Cecília</option>
+          <option>República</option>
+          <option>Anhangabaú</option>
+          <option>Sé</option>
+          <option>Pedro II</option>
+          <option>Brás</option>
+          <option>Bresser-Mooca</option>
+          <option>Belém</option>
+          <option>Tatuapé</option>
+          <option>Carrão</option>
+          <option>Penha</option>
+          <option>Vila Matilde</option>
+          <option>Guilhermina-Esperança</option>
+          <option>Artur Alvim</option>
+          <option>Corinthians-Itaquera</option>
+          <option>Itaquera</option>
+        </optgroup>
+        <optgroup label="━━ LINHA 4 — AMARELA ━━">
+          <option>Luz</option>
+          <option>República</option>
+          <option>Paulista</option>
+          <option>Higienópolis-Mackenzie</option>
+          <option>Oscar Freire</option>
+          <option>Faria Lima</option>
+          <option>Pinheiros</option>
+          <option>Butantã</option>
+        </optgroup>
+        <optgroup label="━━ LINHA 5 — LILÁS ━━">
+          <option>Capão Redondo</option>
+          <option>Campo Limpo</option>
+          <option>Vila das Belezas</option>
+          <option>Giovanni Gronchi</option>
+          <option>Santo Amaro</option>
+          <option>Largo Treze</option>
+          <option>Adolfo Pinheiro</option>
+          <option>Alto da Boa Vista</option>
+          <option>Borba Gato</option>
+          <option>Moema</option>
+          <option>AACD-Servidor</option>
+          <option>Hospital São Paulo</option>
+          <option>Santa Cruz</option>
+          <option>Praça da Árvore</option>
+          <option>Saúde</option>
+          <option>Chácara Klabin</option>
+          <option>Ana Rosa</option>
+        </optgroup>
+        <optgroup label="━━ LINHA 15 — PRATA ━━">
+          <option>Vila Prudente</option>
+          <option>Camilo Haddad</option>
+          <option>Vila Tolstói</option>
+          <option>Vila União</option>
+          <option>Jardim Planalto</option>
+          <option>Sapopemba</option>
+          <option>Fazenda da Juta</option>
+          <option>São Mateus</option>
+          <option>Mauá</option>
+          <option>Jardim Colonial</option>
+          <option>Vila Metalúrgica-Autódromo</option>
+        </optgroup>
+      </select>
+      <span class="select-arrow" aria-hidden="true">▾</span>
     </div>
     <div class="frete-feedback hint" id="frete-feedback">
-      Aceito em Vila Mariana e bairros a até 500m de uma estação de metrô.
+      Selecione a estação de metrô mais próxima de você.
     </div>
 
     <div class="frete-taxa">
@@ -893,35 +1054,24 @@
     });
   }
 
-  function validateLocation(val) {
-    state.bairro = val.trim();
-    const input = document.getElementById('bairro-input');
+  function selectStation(val) {
+    state.bairro = val;
+    const select = document.getElementById('bairro-input');
     const feedback = document.getElementById('frete-feedback');
-    const icon = document.getElementById('location-icon');
 
-    if (!val || val.length < 3) {
-      input.className = 'neon-input';
+    if (!val) {
+      select.className = 'neon-select';
       feedback.className = 'frete-feedback hint';
-      feedback.textContent = 'Aceito em Vila Mariana e bairros a até 500m de uma estação de metrô.';
-      icon.textContent = '📍';
+      feedback.textContent = 'Selecione a estação de metrô mais próxima de você.';
       state.locationOk = false;
-      updateBtn(); return;
+      updateBtn();
+      return;
     }
 
-    const ok = isValidLocation(val);
-    if (ok) {
-      input.className = 'neon-input valid';
-      feedback.className = 'frete-feedback ok';
-      feedback.textContent = '▶ LOCALIZAÇÃO CONFIRMADA — SERVIÇOS DIGITAIS: TAXA R$0';
-      icon.textContent = '✅';
-      state.locationOk = true;
-    } else {
-      input.className = 'neon-input invalid';
-      feedback.className = 'frete-feedback error';
-      feedback.textContent = '✖ LOCAL NÃO ATENDIDO — Informe um bairro próximo ao metrô ou Vila Mariana.';
-      icon.textContent = '❌';
-      state.locationOk = false;
-    }
+    select.className = 'neon-select valid';
+    feedback.className = 'frete-feedback ok';
+    feedback.textContent = '▶ ESTAÇÃO CONFIRMADA — ' + val.toUpperCase() + ' • TAXA R$0';
+    state.locationOk = true;
     updateBtn();
   }
 
@@ -1000,10 +1150,9 @@
     state.selected.clear(); state.total = 0; state.bairro = ''; state.locationOk = false;
     document.querySelectorAll('.card.selected').forEach(c => { c.classList.remove('selected'); c.setAttribute('aria-pressed','false'); });
     const inp = document.getElementById('bairro-input');
-    inp.value = ''; inp.className = 'neon-input';
+    inp.value = ''; inp.className = 'neon-select';
     document.getElementById('frete-feedback').className = 'frete-feedback hint';
-    document.getElementById('frete-feedback').textContent = 'Aceito em Vila Mariana e bairros a até 500m de uma estação de metrô.';
-    document.getElementById('location-icon').textContent = '📍';
+    document.getElementById('frete-feedback').textContent = 'Selecione a estação de metrô mais próxima de você.';
     animateTotal(0); renderResumo(); updateBtn();
   }
 
