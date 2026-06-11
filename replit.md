@@ -1,36 +1,39 @@
-# [Project name]
+# Fortunato Criativo — Vitrine de Pedidos
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Vitrine de serviços interativa para o estúdio criativo Fortunato Criativo, estilizada como controle de vídeo-game. Permite ao cliente montar um pedido, validar localização por estação de metrô e enviar diretamente pelo WhatsApp.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `pnpm --filter @workspace/vitrine run dev` — inicia o servidor de desenvolvimento da vitrine
+- `pnpm run typecheck` — verifica tipos em todos os pacotes
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Frontend: HTML puro + CSS + JavaScript (sem frameworks)
+- Dev server: Vite 6
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/vitrine/index.html` — toda a aplicação: markup, estilos e lógica JS em um único arquivo
+- `artifacts/vitrine/vite.config.ts` — configuração do Vite (usa env vars `PORT` e `BASE_PATH`)
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- App inteiramente em HTML/CSS/JS puro dentro do `index.html` — sem React nem bibliotecas externas, para máxima portabilidade e simplicidade
+- Validação de localização via lista curada de estações do Metrô SP (linhas 1-5 e 15), sem chamadas de API externa
+- WhatsApp como canal de pedido: mensagem pré-formatada via `wa.me` link
+- Background animado (canvas hexágonos) com `position: fixed` e `z-index: 0`; todo conteúdo em `z-index: 1`
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+Vitrine de pedidos para o estúdio Fortunato Criativo (Vila Mariana, SP):
+- 6 serviços selecionáveis com preços
+- Seleção de estação de metrô mais próxima do cliente
+- Resumo do pedido em tempo real com total animado
+- Finalização via WhatsApp com mensagem automática
+- Botão para agendar reunião online (sem validação de localização)
+- Confetti ao finalizar o pedido
 
 ## User preferences
 
@@ -38,8 +41,6 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- O arquivo `index.html` contém todo o CSS e JS inline — manter assim por design
+- `PORT` e `BASE_PATH` são injetados pelo workflow do Replit; não fixar porta no `vite.config.ts`
+- WhatsApp: número configurado em `WA_NUMBER` no topo do `<script>` do `index.html`
