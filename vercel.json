@@ -1,4 +1,4 @@
 {
-  "outputDirectory": "artifacts/vitrine/dist",
+  "outputDirectory": "dist",
   "framework": null
 }
