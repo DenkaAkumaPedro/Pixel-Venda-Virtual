@@ -1,9 +1,14 @@
 import express, { type Express } from "express";
 import cors from "cors";
-import pinoHttp from "pino-http";
+import pinoHttpLib from "pino-http";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import router from "./routes";
 import { logger } from "./lib/logger";
+
+// pino-http@10 uses `export =` which is incompatible with moduleResolution:"bundler"
+// cast to any to call it while retaining IntelliSense on the rest of the file
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const pinoHttp = pinoHttpLib as unknown as (opts: any) => any;
 
 const app: Express = express();
 
