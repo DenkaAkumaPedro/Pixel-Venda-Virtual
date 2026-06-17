@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm --filter @workspace/vitrine run build",
+  "outputDirectory": "artifacts/vitrine/dist",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "framework": null
+}
